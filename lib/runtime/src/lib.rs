@@ -37,6 +37,7 @@ pub mod component;
 pub mod discovery;
 pub mod engine;
 pub mod http_server;
+pub mod instances;
 pub mod logging;
 pub mod pipeline;
 pub mod prelude;
@@ -50,7 +51,6 @@ pub mod traits;
 pub mod transports;
 pub mod utils;
 pub mod worker;
-pub mod instances;
 
 pub mod distributed;
 pub use futures::stream;
