@@ -413,6 +413,9 @@ async fn chat_completions(
     // and early return a 501 NOT_IMPLEMENTED status code. Otherwise, proceeed.
     validate_chat_completion_unsupported_fields(&request)?;
 
+    // Handle required fields like messages shouldn't be empty.
+    validate_chat_completion_required_fields(&request)?;
+
     // Apply template values if present
     if let Some(template) = template {
         if request.inner.model.is_empty() {
@@ -553,6 +556,22 @@ pub fn validate_chat_completion_unsupported_fields(
         return Err(ErrorMessage::not_implemented_error(
             "`functions` is deprecated. Please migrate to use `tools` instead.",
         ));
+    }
+
+    Ok(())
+}
+
+/// Validates that required fields are present and valid in the chat completion request
+pub fn validate_chat_completion_required_fields(
+    request: &NvCreateChatCompletionRequest,
+) -> Result<(), ErrorResponse> {
+    let inner = &request.inner;
+
+    if inner.messages.is_empty() {
+        return Err(ErrorMessage::from_http_error(HttpError {
+            code: 400,
+            message: "The 'messages' field cannot be empty. At least one message is required.".to_string(),
+        }));
     }
 
     Ok(())
