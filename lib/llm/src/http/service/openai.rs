@@ -570,7 +570,8 @@ pub fn validate_chat_completion_required_fields(
     if inner.messages.is_empty() {
         return Err(ErrorMessage::from_http_error(HttpError {
             code: 400,
-            message: "The 'messages' field cannot be empty. At least one message is required.".to_string(),
+            message: "The 'messages' field cannot be empty. At least one message is required."
+                .to_string(),
         }));
     }
 
