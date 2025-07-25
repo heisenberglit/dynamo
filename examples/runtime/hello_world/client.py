@@ -13,22 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-DECODE_NUM_REQUESTS_RANGE = [
-    1,
-    5,
-    10,
-    25,
-    50,
-    100,
-    150,
-    200,
-    250,
-    300,
-    350,
-    400,
-    450,
-    500,
-]
+import asyncio
 
-DEFAULT_MODEL_NAME = "Qwen/Qwen3-0.6B"
-DYNAMO_RUN_DEFAULT_PORT = 8000
+import uvloop
+
+from dynamo.runtime import DistributedRuntime, dynamo_worker
+
+
+@dynamo_worker()
+async def worker(runtime: DistributedRuntime):
+    # Get endpoint
+    endpoint = (
+        runtime.namespace("hello_world").component("backend").endpoint("generate")
+    )
+
+    # Create client and wait for service to be ready
+    client = await endpoint.client()
+    await client.wait_for_instances()
+
+    # Issue request and process the stream
+    stream = await client.generate("world,sun,moon,star")
+    async for response in stream:
+        print(response.data())
+
+
+if __name__ == "__main__":
+    uvloop.install()
+    asyncio.run(worker())
